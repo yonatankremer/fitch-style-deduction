@@ -57,7 +57,6 @@
       }
 
     // else
-
     panic("Invalid input type! Valid inputs are equations or arrays.")
 
 }
@@ -83,7 +82,7 @@
 
   let last = formulas.last()
 
-  assert((last not in utils) or (last == spe), message: "Can't end the proof with a utility line other than!")
+  assert((last not in utils) or (last == spe), message: "Can't end the proof with a utility line other than spe!")
 
   return formulas
   

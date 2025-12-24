@@ -1,4 +1,0 @@
-[package]
-name = "fitch-style-deduction"
-version = "1.0.0"
-entrypoint = "lib.typ"

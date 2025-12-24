@@ -1,5 +1,5 @@
-#import "1.0.0/lib.typ": ded
-#import "1.0.0/formula.typ": sps, spe, asm
+#import "lib.typ": ded
+#import "src/formula.typ": sps, spe, asm
 
 De Morgan: $not(p and q) tack (not p or not q)$.
 Proof:
