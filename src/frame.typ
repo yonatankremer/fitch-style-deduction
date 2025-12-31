@@ -1,23 +1,24 @@
-#import "frame-line.typ": *
+#import "frameline.typ": *
 #import "formula.typ": * // constrain later
-#import "helpers.typ": merge
 
-// returns an array of each formula's array of frame lines
-#let frame-as-array(form, frame-line-model) = {
+// returns an array of each formula's array of frame lines; core logic of the library.
+#let frame-as-array(formulas, fl-model) = {
 
   let frm = ()
-  let new = (frame-line-model,)
+  let new = (fl-model,)
   let is-asm = (false,)
 
-  for line in form {
+  for line in formulas {
 
     if line == sps {
 
       if is-asm.last() {
-        new.push(fl-modify(frame-line-model, "is-short", true))
+        let push = fl-model
+        push.insert("is-short", true)
+        new.push(push)
         }
         
-      else {new.push(frame-line-model)}
+      else {new.push(fl-model)}
       is-asm.push(false)
 
     }
@@ -30,14 +31,14 @@
     }
 
     else if line == asm {
-      frm.last().last() = fl-modify(frm.last().last(), "is-asm", true)
+      frm.last().last().insert("is-asm", true)
       is-asm.last() = true
     }
 
     // is a visible line
     else {
       frm.push(new)
-      new.last() = fl-modify(new.last(), "is-short", false)
+      new.last().insert("is-short", false)
     }
 
   }
@@ -46,44 +47,38 @@
 
 }
 
-// resizes assumption lines according to the last assumption's display size
-#let dynamic-asms(merged) = {
+#let frame(fl-model, asm-mode, formulas) = context {
 
-  let new = ()
+  let arr = frame-as-array(formulas, fl-model)
+  let formulas = formulas.filter(x => x not in utils)
+  let merged = array.zip(arr, formulas)
 
-  for (fml, frm) in merged {
+  if asm-mode == "dynamic" {
+    for i in range(merged.len()) {
+      merged.at(i).at(0).last().insert("asm-length", measure(merged.at(i).at(1).equation).width + 1em) // cursed
+    }
+  } // LFGGGGG
 
-    // fix constantage, independence of appearance, and breaking, with context
+  // What was the problem? Easy - I ran a for (x,y) in merged and modified x - but it doesn't refer to the value that is x in merged!! It has to be directly, sadly through indexation.
 
-    let len = context{measure(fml.equation).width * text.size.pt()}
-    frm.last() = fl-modify(frm.last(), "asm-length", len)
-    new.push((fml, frm))
-  }
+  // Another two possible implementations: 
+  //  - throwing the same line in the same conditional in the loop below
+  //  - defining is-dynamic = 1 if dynamic, 0 if manual, then in each iteration of the loop set the current fl-row.last... to is-dynamic * mesaure... + 1-is-dynamic * fl-model asmlength... quite ugly, and will require the loop the use 
 
-  return new
-
-}
-
-#let frame(formulas, frame-line-model, asm-mode) = {
+  // oddly enough, using merged.map(...) doesn't work!
   
-  formulas = parse(formulas)
-  let arr = frame-as-array(formulas, frame-line-model)
-  formulas = formulas.filter(x => x not in utils)
-
-  let merged = merge(formulas, arr)
-  if asm-mode == "dynamic" {merged = dynamic-asms(merged)}
 
   let out = ()
 
-  for (fml, frm) in merged {
+  for (fl-row, formula) in merged {
 
-    let move-left = 0pt 
-    if frm.last().is-asm {move-left = frm.last().asm-length}
+    let move-left = 0em
+    if fl-row.last().is-asm {move-left = fl-row.last().asm-length}
     let new-line = stack(
       dir: ltr,
-      spacing: 11pt, // fix constant...
-      ..(frm.map(x => fl-display(x))),
-      align(left+horizon, move(dx: -(move-left + 11pt/1.75), fml.equation)) // fix constant
+      spacing: 1em,
+      ..fl-row.map(x => align(bottom+left, fl-display(x))),
+      align(left+horizon, move(dx: -(move-left + .5em), formula.equation))
       )
     out.push(align(left,new-line))
 

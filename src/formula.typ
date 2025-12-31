@@ -10,13 +10,13 @@
 // utility formulas
 
 // starts a subproof
-#let sps = formula(1,"UTIL subproof start")
+#let sps = formula(-1,"UTIL subproof start")
 
 // ends a subproof
-#let spe = formula(1,"UTIL subproof end")
+#let spe = formula(-1,"UTIL subproof end")
 
 // an assumption line
-#let asm = formula(1,"UTIL assumption line")
+#let asm = formula(-1,"UTIL assumption line")
 
 #let utils = (sps, spe, asm)
 

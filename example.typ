@@ -1,9 +1,10 @@
 #import "lib.typ": ded
 #import "src/formula.typ": sps, spe, asm
+#import "src/frameline.typ": frameline
 
 De Morgan: $not(p and q) tack (not p or not q)$.
 Proof:
-#ded((
+#ded(asm-mode: "dynamic", (
 $not(p and q)$,
 asm,
 sps,
@@ -31,7 +32,7 @@ spe,
 ($tack.t$, $tack.t I quad 1,13$),
 spe,
 ($not not(not p or not q)$, $not I quad 2,14$),
-($(not p or not q)$, $not E quad 15$)
+($(not p or not q)$, $not E quad 15$),
 ))
 
 Done!
